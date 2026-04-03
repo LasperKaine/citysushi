@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>City Sushi</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">🍣 City Sushi</div>
+        <div class="header-actions">
+            <button class="icon-btn"><i class="fas fa-globe"></i></button>
+            <button class="icon-btn"><i class="fas fa-user-circle"></i></button>
+        </div>
+    </header>
+
+    <div id="home-screen" class="screen active">
+        <div class="hero">
+            <h1>Tervetuloa City Sushille!</h1>
+            <p>Tuoretta sushia • Maistuvaa ruokaa</p>
+            <button class="btn-primary" onclick="showScreen('menu')">Menu</button>
+        </div>
+
+        <div class="content">
+            <h2 class="section-title">Erityistarjoukset</h2>
+            <div class="offers">
+                <div class="offer-card">
+                    <span class="badge">20% OFF</span>
+                    <h3>Special Roll Friday</h3>
+                </div>
+            </div>
+
+            <h2 class="section-title">Suositellut annokset</h2>
+            <div id="recommended" class="horizontal-scroll">
+            </div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item active" onclick="showScreen('home')"><i class="fas fa-home"></i><span>Koti</span></a>
+        <a href="#" class="nav-item" onclick="showScreen('menu')"><i class="fas fa-book"></i><span>Menu</span></a>
+        <a href="#" class="nav-item" onclick="showScreen('cart')"><i class="fas fa-shopping-cart"></i><span>Kori</span></a>
+        <a href="#" class="nav-item" onclick="showScreen('orders')"><i class="fas fa-receipt"></i><span>Tilaukset</span></a>
+        <a href="#" class="nav-item" onclick="showScreen('profile')"><i class="fas fa-user"></i><span>Minä</span></a>
+    </nav>
+
+    <script>
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            const screen = document.getElementById(screenId + '-screen');
+            if (screen) screen.classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        }
+    </script>
+</body>
+</html>
