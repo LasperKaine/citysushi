@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luo tili - City Sushi</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="auth-header">
+            <div class="logo">
+                <span class="logo-icon">🍣</span> City Sushi
+            </div>
+            <h1>Luo uusi tili</h1>
+        </div>
+
+        <div class="auth-form">
+            <div class="input-group">
+                <label>Etunimi</label>
+                <input type="text" id="firstname" placeholder="Matti" required>
+            </div>
+
+            <div class="input-group">
+                <label>Sukunimi</label>
+                <input type="text" id="lastname" placeholder="Meikäläinen" required>
+            </div>
+
+            <div class="input-group">
+                <label>Sähköposti</label>
+                <input type="email" id="email" placeholder="matti@example.com" required>
+            </div>
+
+            <div class="input-group">
+                <label>Puhelinnumero</label>
+                <input type="tel" id="phone" placeholder="040 123 4567">
+            </div>
+
+            <div class="input-group">
+                <label>Salasana</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+
+            <div class="input-group">
+                <label>Salasana uudelleen</label>
+                <input type="password" id="password2" placeholder="••••••••" required>
+            </div>
+
+            <button class="btn-primary2" onclick="register()">Luo tili</button>
+
+            <div class="auth-divider">
+                <span>Onko sinulla jo tili?</span>
+            </div>
+
+            <button class="btn-secondary" onclick="window.location.href='login.html'">
+                Kirjaudu sisään
+            </button>
+        </div>
+
+        <div class="auth-footer">
+            <a href="index.html">← Takaisin etusivulle</a>
+        </div>
+    </div>
+
+    <script>
+        function register() {
+            alert("Tili luotu onnistuneesti! (Demo)");
+            window.location.href = "login.html";
+        }
+    </script>
+</body>
+</html>

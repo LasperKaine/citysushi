@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kirjaudu sisään - City Sushi</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="auth-header">
+            <div class="logo">
+                <span class="logo-icon">🍣</span> City Sushi
+            </div>
+            <h1>Kirjaudu sisään</h1>
+        </div>
+
+        <div class="auth-form">
+            <div class="input-group">
+                <label>Sähköposti</label>
+                <input type="email" id="email" placeholder="matti@example.com" required>
+            </div>
+
+            <div class="input-group">
+                <label>Salasana</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+
+            <div class="remember-forgot">
+                <label><input type="checkbox"> Muista minut</label>
+                <a href="#" class="forgot-link">Unohtuiko salasana?</a>
+            </div>
+
+            <button class="btn-primary2" onclick="login()">Kirjaudu sisään</button>
+
+            <div class="auth-divider">
+                <span>Ei vielä tiliä?</span>
+            </div>
+
+            <button class="btn-secondary" onclick="window.location.href='register.html'">
+                Luo uusi tili
+            </button>
+        </div>
+
+        <div class="auth-footer">
+            <a href="index.html">← Takaisin etusivulle</a>
+        </div>
+    </div>
+
+    <script>
+        function login() {
+            const email = document.getElementById('email').value;
+            if (email) {
+                alert("Kirjauduttu sisään! (Demo)");
+                window.location.href = "index.html";
+            } else {
+                alert("Syötä sähköposti");
+            }
+        }
+    </script>
+</body>
+</html>
