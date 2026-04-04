@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tilaukset - City Sushi</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <header class="header">
+        <button class="back-btn" onclick="window.location.href='index.html'">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <div class="logo">
+            <span class="logo-icon">🍣</span> City Sushi
+        </div>
+    </header>
+
+    <div class="screen active">
+        <div class="screen-header">
+            <h1>Tilaukset</h1>
+        </div>
+        
+        <div class="content">
+            <div class="order-card">
+                <div class="order-header">
+                    <span class="order-number">#CS-7842</span>
+                    <span class="status delivered">Toimitettu</span>
+                </div>
+                <p class="order-date">3. huhtikuuta 2026 • 18:45</p>
+                <p class="order-items">Spicy Tuna Roll ×2 • Salmon Nigiri ×3 • Miso Soup</p>
+                <div class="order-total">Yhteensä: <strong>28,90 €</strong></div>
+            </div>
+
+            <div class="order-card">
+                <div class="order-header">
+                    <span class="order-number">#CS-7839</span>
+                    <span class="status preparing">Valmistetaan</span>
+                </div>
+                <p class="order-date">2. huhtikuuta 2026 • 12:30</p>
+                <p class="order-items">California Roll ×1 • Dragon Roll</p>
+                <div class="order-total">Yhteensä: <strong>19,50 €</strong></div>
+            </div>
+
+            <div class="order-card">
+                <div class="order-header">
+                    <span class="order-number">#CS-7831</span>
+                    <span class="status delivered">Toimitettu</span>
+                </div>
+                <p class="order-date">30. maaliskuuta 2026 • 19:20</p>
+                <p class="order-items">Rainbow Roll • Edamame</p>
+                <div class="order-total">Yhteensä: <strong>24,70 €</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>Koti</span></a>
+        <a href="menu.html" class="nav-item"><i class="fas fa-book"></i><span>Menu</span></a>
+        <a href="cart.html" class="nav-item"><i class="fas fa-shopping-cart"></i><span>Kori</span></a>
+        <a href="orders.html" class="nav-item active"><i class="fas fa-receipt"></i><span>Tilaukset</span></a>
+        <a href="profile.html" class="nav-item"><i class="fas fa-user"></i><span>Minä</span></a>
+    </nav>
+
+</body>
+</html>
