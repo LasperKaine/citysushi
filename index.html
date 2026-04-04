@@ -20,7 +20,7 @@
         <div class="hero">
             <h1>Tervetuloa City Sushille!</h1>
             <p>Tuoretta sushia • Maistuvaa ruokaa</p>
-            <button class="btn-primary" onclick="showScreen('menu')">Menu</button>
+            <button class="btn-primary" onclick="window.location.href='menu.html'">Menu</button>
         </div>
 
         <div class="content">
@@ -45,18 +45,5 @@
         <a href="#" class="nav-item" onclick="showScreen('orders')"><i class="fas fa-receipt"></i><span>Tilaukset</span></a>
         <a href="#" class="nav-item" onclick="showScreen('profile')"><i class="fas fa-user"></i><span>Minä</span></a>
     </nav>
-
-    <script>
-        function showScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.classList.remove('active');
-            });
-            const screen = document.getElementById(screenId + '-screen');
-            if (screen) screen.classList.add('active');
-            
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-        }
-    </script>
 </body>
 </html>
