@@ -1,6 +1,9 @@
 const Order = require("../models/order.model");
 const Menu = require("../models/menu.model");
+const Loyalty = require("../models/loyalty.model");
 const crypto = require("crypto");
+
+const POINTS_PER_EURO = 10;
 
 module.exports = {
   createOrder: async (req, res) => {
@@ -177,10 +180,21 @@ module.exports = {
         return res.status(400).json({ message: "Invalid status" });
       }
 
+      const order = await Order.getOrderById(orderId);
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
       const updated = await Order.updateOrderStatus(orderId, status);
 
-      if (!updated) {
-        return res.status(404).json({ message: "Order not found" });
+      if (status === "delivered" && order.status !== "delivered") {
+        const earnedPoints = Math.floor(order.total_price * POINTS_PER_EURO);
+
+        await Loyalty.addTransaction(
+          order.user_id,
+          earnedPoints,
+          `Points earned from order #${order.order_number}`,
+        );
       }
 
       res.json({ message: "Status updated" });
