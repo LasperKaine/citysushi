@@ -5,6 +5,9 @@ require("dotenv").config();
 
 const authRoutes = require("./routes/auth.routes");
 
+const orderRoutes = require("./src/routes/order.routes");
+app.use("/api/orders", orderRoutes);
+
 const app = express();
 
 app.use(cors());

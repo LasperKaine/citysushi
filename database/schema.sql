@@ -59,8 +59,11 @@ CREATE TABLE IF NOT EXISTS orders (
   order_number VARCHAR(50) NOT NULL UNIQUE,
   delivery_method ENUM('delivery', 'pickup') NOT NULL,
   address_id INT,
+  total_price DECIMAN(10, 2) NOT NULL DEFAULT 0.00,
+  notes TEXT,
   status ENUM('pending', 'confirmed', 'preparing', 'ready', 'delivered', 'cancelled') NOT NULL DEFAULT 'pending',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id),
   FOREIGN KEY (address_id) REFERENCES addresses(id)
 );
@@ -70,6 +73,7 @@ CREATE TABLE IF NOT EXISTS order_items (
   order_id INT NOT NULL,
   item_id INT NOT NULL,
   quantity INT NOT NULL DEFAULT 1,
+  price_snapshot DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
   special_request TEXT,
   FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
   FOREIGN KEY (item_id) REFERENCES menu_items(id)
@@ -78,6 +82,7 @@ CREATE TABLE IF NOT EXISTS order_items (
 CREATE TABLE IF NOT EXISTS order_item_ingredients (
   order_item_id INT NOT NULL,
   ingredient_id INT NOT NULL,
+  price_snapshot DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
   PRIMARY KEY (order_item_id, ingredient_id),
   FOREIGN KEY (order_item_id) REFERENCES order_items(id) ON DELETE CASCADE,
   FOREIGN KEY (ingredient_id) REFERENCES ingredients(id)

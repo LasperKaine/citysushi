@@ -1,41 +1,82 @@
 const db = require("../config/db");
 
 module.exports = {
-  createOrder: async (userId, orderNumber, deliveryMethod, addressId = null) => {
-    const [result] = await db.execute(
-      `INSERT INTO orders (user_id, order_number, delivery_method, address_id) VALUES (?, ?, ?, ?)`,
-      [userId, orderNumber, deliveryMethod, addressId],
+  //  TRANSACTION CONTROL
+  beginTransaction: async () => {
+    const connection = await db.getConnection();
+    await connection.beginTransaction();
+    return connection;
+  },
+
+  commit: async (connection) => {
+    await connection.commit();
+    connection.release();
+  },
+
+  rollback: async (connection) => {
+    await connection.rollback();
+    connection.release();
+  },
+
+  //  ORDER CREATION
+  createOrder: async (
+    connection,
+    userId,
+    orderNumber,
+    deliveryMethod,
+    addressId = null,
+    totalPrice,
+    notes,
+  ) => {
+    const [result] = await connection.execute(
+      `INSERT INTO orders (user_id, order_number, delivery_method, address_id, total_price, notes, status)
+       VALUES (?, ?, ?, ?, ?, ?, 'pending')`,
+      [
+        userId,
+        orderNumber,
+        deliveryMethod,
+        addressId,
+        totalPrice,
+        notes || null,
+      ],
     );
     return result.insertId;
   },
 
-  addOrderItem: async (orderId, itemId, quantity, specialRequest = null) => {
-    const [result] = await db.execute(
-      `INSERT INTO order_items (order_id, item_id, quantity, special_request) VALUES (?, ?, ?, ?)`,
-      [orderId, itemId, quantity, specialRequest],
+  addOrderItem: async (
+    connection,
+    orderId,
+    itemId,
+    quantity,
+    priceSnapshot,
+    specialRequest,
+  ) => {
+    const [result] = await connection.execute(
+      `INSERT INTO order_items (order_id, item_id, quantity, price_snapshot, special_request)
+       VALUES (?, ?, ?, ?,?)`,
+      [orderId, itemId, quantity, priceSnapshot, specialRequest || null],
     );
     return result.insertId;
   },
 
-  addOrderItemIngredient: async (orderItemId, ingredientId) => {
-    await db.execute(
-      `INSERT IGNORE INTO order_item_ingredients (order_item_id, ingredient_id) VALUES (?, ?)`,
-      [orderItemId, ingredientId],
+  addOrderItemIngredient: async (
+    connection,
+    orderItemId,
+    ingredientId,
+    priceSnapshot,
+  ) => {
+    await connection.execute(
+      `INSERT IGNORE INTO order_item_ingredients (order_item_id, ingredient_id, price_snapshot) 
+       VALUES (?, ?, ?)`,
+      [orderItemId, ingredientId, priceSnapshot],
     );
   },
 
-  getOrdersByUser: async (userId) => {
-    const [rows] = await db.execute(
-      `SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC`,
-      [userId],
-    );
-    return rows;
-  },
-
-  getOrderById: async (id) => {
+  //  ORDER RETRIEVAL
+  getOrderById: async (orderId) => {
     const [rows] = await db.execute(
       `SELECT * FROM orders WHERE id = ? LIMIT 1`,
-      [id],
+      [orderId],
     );
     return rows[0];
   },
@@ -57,6 +98,15 @@ module.exports = {
        JOIN order_item_ingredients oii ON oii.ingredient_id = i.id
        WHERE oii.order_item_id = ?`,
       [orderItemId],
+    );
+    return rows;
+  },
+
+  //  USER & ADMIN QUERIES
+  getOrdersByUser: async (userId) => {
+    const [rows] = await db.execute(
+      `SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC`,
+      [userId],
     );
     return rows;
   },
