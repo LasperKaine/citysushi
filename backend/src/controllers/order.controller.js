@@ -1,6 +1,7 @@
 const Order = require("../models/order.model");
 const Menu = require("../models/menu.model");
 const Loyalty = require("../models/loyalty.model");
+const Coupon = require("../models/coupon.model");
 const crypto = require("crypto");
 
 const POINTS_PER_EURO = 10;
@@ -14,37 +15,37 @@ module.exports = {
       return res.status(400).json({ message: "Order must contain items" });
     }
 
-    let appliedCoupon = null;
-
-    if (couponCode) {
-      appliedCoupon = await Coupon.getCouponByCode(couponCode);
-
-      if (!appliedCoupon) {
-        throw new Error("Invalid coupon code");
-      }
-
-      const userCoupons = await Coupon.getCouponsByUser(userId);
-      const owned = userCoupons.find((c) => c.id === appliedCoupon.id);
-
-      if (!owned) {
-        throw new Error("Coupon not assigned to this user");
-      }
-
-      if (owned.used_at) {
-        throw new Error("Coupon already used");
-      }
-
-      if (
-        appliedCoupon.expiration_date &&
-        new Date(appliedCoupon.expiration_date) < new Date()
-      ) {
-        throw new Error("Coupon expired");
-      }
-    }
-
     let connection;
 
     try {
+      let appliedCoupon = null;
+
+      if (couponCode) {
+        appliedCoupon = await Coupon.getCouponByCode(couponCode);
+
+        if (!appliedCoupon) {
+          throw new Error("Invalid coupon code");
+        }
+
+        const userCoupons = await Coupon.getCouponsByUser(userId);
+        const owned = userCoupons.find((c) => c.id === appliedCoupon.id);
+
+        if (!owned) {
+          throw new Error("Coupon not assigned to this user");
+        }
+
+        if (owned.used_at) {
+          throw new Error("Coupon already used");
+        }
+
+        if (
+          appliedCoupon.expiration_date &&
+          new Date(appliedCoupon.expiration_date) < new Date()
+        ) {
+          throw new Error("Coupon expired");
+        }
+      }
+
       //start transaction
       connection = await Order.beginTransaction();
 
@@ -147,11 +148,11 @@ module.exports = {
         }
       }
 
-      await Order.commit(connection);
-
       if (appliedCoupon) {
         await Coupon.markCouponUsed(userId, appliedCoupon.id);
       }
+
+      await Order.commit(connection);
 
       res.status(201).json({
         message: "Order created successfully",
