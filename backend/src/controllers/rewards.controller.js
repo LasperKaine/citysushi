@@ -36,7 +36,7 @@ module.exports = {
         `Redeemed reward: ${reward.name}`,
       );
 
-      const couponCode = crypto.randomBytes(4).toString("hex").toUppercase();
+      const couponCode = crypto.randomBytes(4).toString("hex").toUpperCase();
 
       const couponId = await Coupon.createCoupon(
         couponCode,

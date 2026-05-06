@@ -1,7 +1,7 @@
 const db = require("../config/db");
 
 module.exports = {
-  getAllrewards: async () => {
+  getAllRewards: async () => {
     const [rows] = await db.execute(
       `SELECT * FROM rewards ORDER BY point_cost ASC`,
     );
@@ -23,10 +23,11 @@ module.exports = {
       discount_value,
     } = data;
     const [result] = await db.execute(
-      `INSERT INTO rewards (name, description, type, point_cost, menu_item_id, discount_value
-             VALUEs (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO rewards (name, description, type, point_cost, menu_item_id, discount_value)
+             VALUES (?, ?, ?, ?, ?, ?)`,
       [name, description, type, point_cost, menu_item_id, discount_value],
     );
+    return result.insertId;
   },
 
   deleteReward: async (id) => {
