@@ -13,7 +13,44 @@ module.exports = {
 
   getMenu: async (req, res) => {
     try {
-      const items = await Menu.getAllMenuItems();
+      const { category_id, exclude_allergens, available, search } = req.query;
+
+      const hasFilters = category_id || exclude_allergens || available !== undefined || search;
+
+      if (!hasFilters) {
+        const items = await Menu.getAllMenuItems();
+        return res.json(items);
+      }
+
+      const filters = {};
+
+      if (category_id) {
+        const parsed = parseInt(category_id, 10);
+        if (isNaN(parsed) || parsed < 1) {
+          return res.status(400).json({ message: "category_id must be a positive integer" });
+        }
+        filters.categoryId = parsed;
+      }
+      if (available !== undefined) filters.available = available === "true";
+      if (search) {
+        const trimmed = search.trim();
+        if (trimmed.length > 100) {
+          return res.status(400).json({ message: "search must be 100 characters or fewer" });
+        }
+        filters.search = trimmed;
+      }
+      if (exclude_allergens) {
+        const allergens = exclude_allergens
+          .split(",")
+          .map((a) => a.trim())
+          .filter(Boolean);
+        if (allergens.length > 20 || allergens.some((a) => a.length > 50)) {
+          return res.status(400).json({ message: "exclude_allergens exceeds allowed limits" });
+        }
+        filters.excludeAllergens = allergens;
+      }
+
+      const items = await Menu.getFilteredMenuItems(filters);
       res.json(items);
     } catch (err) {
       console.error(err);
