@@ -1,7 +1,7 @@
 const db = require("../config/db");
 
 module.exports = {
-  getAllrewards: async () => {
+  getAllRewards: async () => {
     const [rows] = await db.execute(
       `SELECT * FROM rewards ORDER BY point_cost ASC`,
     );
@@ -14,19 +14,23 @@ module.exports = {
   },
 
   createReward: async (data) => {
-    const {
-      name,
-      description,
-      type,
-      point_cost,
-      menu_item_id,
-      discount_value,
-    } = data;
+    const { name, description, type, point_cost, menu_item_id, discount_value } = data;
     const [result] = await db.execute(
-      `INSERT INTO rewards (name, description, type, point_cost, menu_item_id, discount_value
-             VALUEs (?, ?, ?, ?, ?, ?)`,
-      [name, description, type, point_cost, menu_item_id, discount_value],
+      `INSERT INTO rewards (name, description, type, point_cost, menu_item_id, discount_value)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [name, description || null, type, point_cost, menu_item_id || null, discount_value || null],
     );
+    return result.insertId;
+  },
+
+  updateReward: async (id, data) => {
+    const { name, description, type, point_cost, menu_item_id, discount_value } = data;
+    const [result] = await db.execute(
+      `UPDATE rewards SET name = ?, description = ?, type = ?, point_cost = ?, menu_item_id = ?, discount_value = ?
+       WHERE id = ?`,
+      [name, description || null, type, point_cost, menu_item_id || null, discount_value || null, id],
+    );
+    return result.affectedRows;
   },
 
   deleteReward: async (id) => {

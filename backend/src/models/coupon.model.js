@@ -42,4 +42,24 @@ module.exports = {
     );
     return result.affectedRows;
   },
+
+  getAllCoupons: async () => {
+    const [rows] = await db.execute(
+      `SELECT * FROM coupons ORDER BY expiration_date DESC`,
+    );
+    return rows;
+  },
+
+  getCouponById: async (id) => {
+    const [rows] = await db.execute(
+      `SELECT * FROM coupons WHERE id = ? LIMIT 1`,
+      [id],
+    );
+    return rows[0];
+  },
+
+  deleteCoupon: async (id) => {
+    const [result] = await db.execute(`DELETE FROM coupons WHERE id = ?`, [id]);
+    return result.affectedRows;
+  },
 };

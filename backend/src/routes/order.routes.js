@@ -5,6 +5,12 @@ const OrderController = require("../controllers/order.controller");
 const auth = require("../middleware/auth.middleware");
 const role = require("../middleware/role.middleware");
 
+//  ADMIN ROUTES
+
+router.get("/admin/all", auth, role("admin"), OrderController.getAllOrders);
+
+router.patch("/admin/:id/status", auth, role("admin"), OrderController.updateOrderStatus,);
+
 //   USER ROUTES
 
 //  create a new order
@@ -15,17 +21,5 @@ router.get("/", auth, OrderController.getUserOrders);
 
 //  get a single order
 router.get("/:id", auth, OrderController.getOrderById);
-
-//  ADMIN ROUTES
-
-//  get all orders
-router.get("/admin/all", auth, role("admin"), OrderController.getAllOrders);
-
-router.patch(
-  "/admin/:id/status",
-  auth,
-  role("admin"),
-  OrderController.updateOrderStatus,
-);
 
 module.exports = router;
