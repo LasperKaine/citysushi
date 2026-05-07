@@ -13,7 +13,28 @@ module.exports = {
 
   getMenu: async (req, res) => {
     try {
-      const items = await Menu.getAllMenuItems();
+      const { category_id, exclude_allergens, available, search } = req.query;
+
+      const hasFilters = category_id || exclude_allergens || available !== undefined || search;
+
+      if (!hasFilters) {
+        const items = await Menu.getAllMenuItems();
+        return res.json(items);
+      }
+
+      const filters = {};
+
+      if (category_id) filters.categoryId = parseInt(category_id, 10);
+      if (available !== undefined) filters.available = available === "true";
+      if (search) filters.search = search.trim();
+      if (exclude_allergens) {
+        filters.excludeAllergens = exclude_allergens
+          .split(",")
+          .map((a) => a.trim())
+          .filter(Boolean);
+      }
+
+      const items = await Menu.getFilteredMenuItems(filters);
       res.json(items);
     } catch (err) {
       console.error(err);
