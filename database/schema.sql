@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS menu_items (
   photo_url VARCHAR(500),
   availability BOOLEAN NOT NULL DEFAULT TRUE,
   allergens TEXT,
+  is_pokebowl BOOLEAN NOT NULL DEFAULT FALSE,
   FOREIGN KEY (category_id) REFERENCES menu_categories(id) ON DELETE CASCADE
 );
 
@@ -51,6 +52,15 @@ CREATE TABLE IF NOT EXISTS menu_item_ingredients (
   PRIMARY KEY (item_id, ingredient_id),
   FOREIGN KEY (item_id) REFERENCES menu_items(id) ON DELETE CASCADE,
   FOREIGN KEY (ingredient_id) REFERENCES ingredients(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS pokebowl_ingredients (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  category ENUM('base', 'protein', 'topping', 'sauce', 'extra') NOT NULL,
+  price DECIMAL(8, 2) NOT NULL DEFAULT 0.00,
+  allergen_info TEXT,
+  available BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE IF NOT EXISTS orders (
@@ -87,6 +97,15 @@ CREATE TABLE IF NOT EXISTS order_item_ingredients (
   PRIMARY KEY (order_item_id, ingredient_id),
   FOREIGN KEY (order_item_id) REFERENCES order_items(id) ON DELETE CASCADE,
   FOREIGN KEY (ingredient_id) REFERENCES ingredients(id)
+);
+
+CREATE TABLE IF NOT EXISTS order_item_pokebowl_ingredients (
+  order_item_id INT NOT NULL,
+  pokebowl_ingredient_id INT NOT NULL,
+  price_snapshot DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+  PRIMARY KEY (order_item_id, pokebowl_ingredient_id),
+  FOREIGN KEY (order_item_id) REFERENCES order_items(id) ON DELETE CASCADE,
+  FOREIGN KEY (pokebowl_ingredient_id) REFERENCES pokebowl_ingredients(id)
 );
 
 CREATE TABLE IF NOT EXISTS loyalty_transactions (

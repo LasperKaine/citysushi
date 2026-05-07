@@ -69,9 +69,22 @@ module.exports = {
     priceSnapshot,
   ) => {
     await connection.execute(
-      `INSERT IGNORE INTO order_item_ingredients (order_item_id, ingredient_id, price_snapshot) 
+      `INSERT IGNORE INTO order_item_ingredients (order_item_id, ingredient_id, price_snapshot)
        VALUES (?, ?, ?)`,
       [orderItemId, ingredientId, priceSnapshot],
+    );
+  },
+
+  addOrderItemPokebowlIngredient: async (
+    connection,
+    orderItemId,
+    pokebowlIngredientId,
+    priceSnapshot,
+  ) => {
+    await connection.execute(
+      `INSERT IGNORE INTO order_item_pokebowl_ingredients (order_item_id, pokebowl_ingredient_id, price_snapshot)
+       VALUES (?, ?, ?)`,
+      [orderItemId, pokebowlIngredientId, priceSnapshot],
     );
   },
 
@@ -86,7 +99,7 @@ module.exports = {
 
   getOrderItems: async (orderId) => {
     const [rows] = await db.execute(
-      `SELECT oi.*, m.name AS item_name, m.price
+      `SELECT oi.*, m.name AS item_name, m.price, m.is_pokebowl
        FROM order_items oi
        JOIN menu_items m ON oi.item_id = m.id
        WHERE oi.order_id = ?`,
@@ -100,6 +113,17 @@ module.exports = {
       `SELECT i.* FROM ingredients i
        JOIN order_item_ingredients oii ON oii.ingredient_id = i.id
        WHERE oii.order_item_id = ?`,
+      [orderItemId],
+    );
+    return rows;
+  },
+
+  getOrderItemPokebowlIngredients: async (orderItemId) => {
+    const [rows] = await db.execute(
+      `SELECT pi.*, oipi.price_snapshot
+       FROM pokebowl_ingredients pi
+       JOIN order_item_pokebowl_ingredients oipi ON oipi.pokebowl_ingredient_id = pi.id
+       WHERE oipi.order_item_id = ?`,
       [orderItemId],
     );
     return rows;

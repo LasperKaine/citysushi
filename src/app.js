@@ -12,11 +12,13 @@ const menuRoutes = require("./routes/menu.routes");
 const orderRoutes = require("./routes/order.routes");
 const loyaltyRoutes = require("./routes/loyalty.routes");
 const rewardRoutes = require("./routes/rewards.routes");
+const pokebowlRoutes = require("./routes/pokebowl.routes");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/menu", menuRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/loyalty", loyaltyRoutes);
 app.use("/api/rewards", rewardRoutes);
+app.use("/api/pokebowl", pokebowlRoutes);
 
 module.exports = app;

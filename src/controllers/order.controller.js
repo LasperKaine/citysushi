@@ -2,6 +2,7 @@ const Order = require("../models/order.model");
 const Menu = require("../models/menu.model");
 const Loyalty = require("../models/loyalty.model");
 const Coupon = require("../models/coupon.model");
+const Pokebowl = require("../models/pokebowl.model");
 const crypto = require("crypto");
 
 const POINTS_PER_EURO = 10;
@@ -53,7 +54,7 @@ module.exports = {
 
       //validate items and calculate total
       for (const item of items) {
-        const { itemId, quantity, ingredients = [], specialRequest } = item;
+        const { itemId, quantity, ingredients = [], pokebowlIngredients = [], specialRequest } = item;
 
         if (!itemId || quantity <= 0) {
           throw new Error("Invalid item or quantity");
@@ -66,23 +67,29 @@ module.exports = {
         }
 
         const itemPrice = menuItem.price;
-        const itemTotal = itemPrice * quantity;
-        totalPrice += itemTotal;
+        totalPrice += itemPrice * quantity;
 
-        //validate ingredients
-        const validIngredients = await Menu.getIngredientsForItem(itemId);
-
-        for (const ingredientId of ingredients) {
-          const ingredient = validIngredients.find(
-            (i) => i.id === ingredientId,
-          );
-          if (!ingredient) {
-            throw new Error(
-              `Invalid ingredient ${ingredientId} for item ${itemId}`,
-            );
+        if (menuItem.is_pokebowl) {
+          // validate pokebowl ingredients
+          if (pokebowlIngredients.length > 0) {
+            const validPokebowlIngredients = await Pokebowl.getIngredientsByIds(pokebowlIngredients);
+            if (validPokebowlIngredients.length !== pokebowlIngredients.length) {
+              throw new Error(`One or more pokebowl ingredients are invalid or unavailable for item ${itemId}`);
+            }
+            for (const ing of validPokebowlIngredients) {
+              totalPrice += ing.price;
+            }
           }
-
-          totalPrice += ingredient.price;
+        } else {
+          // validate standard menu item ingredients
+          const validIngredients = await Menu.getIngredientsForItem(itemId);
+          for (const ingredientId of ingredients) {
+            const ingredient = validIngredients.find((i) => i.id === ingredientId);
+            if (!ingredient) {
+              throw new Error(`Invalid ingredient ${ingredientId} for item ${itemId}`);
+            }
+            totalPrice += ingredient.price;
+          }
         }
       }
 
@@ -119,32 +126,32 @@ module.exports = {
       );
 
       for (const item of items) {
-        const { itemId, quantity, ingredients = [], specialRequest } = item;
+        const { itemId, quantity, ingredients = [], pokebowlIngredients = [], specialRequest } = item;
 
         const menuItem = await Menu.getMenuItemById(itemId);
-        const itemPrice = menuItem.price;
 
         const orderItemId = await Order.addOrderItem(
           connection,
           orderId,
           itemId,
           quantity,
-          itemPrice,
+          menuItem.price,
           specialRequest,
         );
 
-        const validIngredients = await Menu.getIngredientsForItem(itemId);
-
-        for (const ingredientId of ingredients) {
-          const ingredient = validIngredients.find(
-            (i) => i.id === ingredientId,
-          );
-          await Order.addOrderItemIngredient(
-            connection,
-            orderItemId,
-            ingredientId,
-            ingredient.price,
-          );
+        if (menuItem.is_pokebowl) {
+          if (pokebowlIngredients.length > 0) {
+            const validPokebowlIngredients = await Pokebowl.getIngredientsByIds(pokebowlIngredients);
+            for (const ing of validPokebowlIngredients) {
+              await Order.addOrderItemPokebowlIngredient(connection, orderItemId, ing.id, ing.price);
+            }
+          }
+        } else {
+          const validIngredients = await Menu.getIngredientsForItem(itemId);
+          for (const ingredientId of ingredients) {
+            const ingredient = validIngredients.find((i) => i.id === ingredientId);
+            await Order.addOrderItemIngredient(connection, orderItemId, ingredientId, ingredient.price);
+          }
         }
       }
 
@@ -196,7 +203,11 @@ module.exports = {
       const items = await Order.getOrderItems(orderId);
 
       for (const item of items) {
-        item.ingredients = await Order.getOrderItemIngredients(item.id);
+        if (item.is_pokebowl) {
+          item.pokebowlIngredients = await Order.getOrderItemPokebowlIngredients(item.id);
+        } else {
+          item.ingredients = await Order.getOrderItemIngredients(item.id);
+        }
       }
 
       res.json({ ...order, items });

@@ -18,6 +18,7 @@ module.exports = {
                 m.photo_url,
                 m.availability,
                 m.allergens,
+                m.is_pokebowl,
                 m.category_id,
                 c.name AS category_name
             FROM menu_items m
@@ -64,6 +65,7 @@ module.exports = {
           m.photo_url,
           m.availability,
           m.allergens,
+          m.is_pokebowl,
           m.category_id,
           c.name AS category_name
        FROM menu_items m
@@ -86,6 +88,7 @@ module.exports = {
                 m.photo_url,
                 m.availability,
                 m.allergens,
+                m.is_pokebowl,
                 m.category_id,
                 c.name AS category_name
             FROM menu_items m
