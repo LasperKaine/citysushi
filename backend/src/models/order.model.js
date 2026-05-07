@@ -27,10 +27,12 @@ module.exports = {
     addressId = null,
     totalPrice,
     notes,
+    couponId = null,
   ) => {
     const [result] = await connection.execute(
-      `INSERT INTO orders (user_id, order_number, delivery_method, address_id, total_price, notes, status)
-       VALUES (?, ?, ?, ?, ?, ?, 'pending')`,
+      `INSERT INTO orders 
+       (user_id, order_number, delivery_method, address_id, total_price, notes, coupon_id, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')`,
       [
         userId,
         orderNumber,
@@ -38,6 +40,7 @@ module.exports = {
         addressId,
         totalPrice,
         notes || null,
+        couponId || null,
       ],
     );
     return result.insertId;

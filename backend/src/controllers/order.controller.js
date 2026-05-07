@@ -1,6 +1,7 @@
 const Order = require("../models/order.model");
 const Menu = require("../models/menu.model");
 const Loyalty = require("../models/loyalty.model");
+const Coupon = require("../models/coupon.model");
 const crypto = require("crypto");
 
 const POINTS_PER_EURO = 10;
@@ -8,7 +9,7 @@ const POINTS_PER_EURO = 10;
 module.exports = {
   createOrder: async (req, res) => {
     const userId = req.user.id;
-    const { items, deliveryMethod, addressId, notes } = req.body;
+    const { items, deliveryMethod, addressId, notes, couponCode } = req.body;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ message: "Order must contain items" });
@@ -17,6 +18,34 @@ module.exports = {
     let connection;
 
     try {
+      let appliedCoupon = null;
+
+      if (couponCode) {
+        appliedCoupon = await Coupon.getCouponByCode(couponCode);
+
+        if (!appliedCoupon) {
+          throw new Error("Invalid coupon code");
+        }
+
+        const userCoupons = await Coupon.getCouponsByUser(userId);
+        const owned = userCoupons.find((c) => c.id === appliedCoupon.id);
+
+        if (!owned) {
+          throw new Error("Coupon not assigned to this user");
+        }
+
+        if (owned.used_at) {
+          throw new Error("Coupon already used");
+        }
+
+        if (
+          appliedCoupon.expiration_date &&
+          new Date(appliedCoupon.expiration_date) < new Date()
+        ) {
+          throw new Error("Coupon expired");
+        }
+      }
+
       //start transaction
       connection = await Order.beginTransaction();
 
@@ -57,6 +86,24 @@ module.exports = {
         }
       }
 
+      let discountAmount = 0;
+
+      if (appliedCoupon) {
+        if (appliedCoupon.discount_value > 0) {
+          //  discount percent 0-100
+          if (appliedCoupon.discount_value <= 1) {
+            discountAmount = totalPrice * appliedCoupon.discount_value;
+          } else {
+            discountAmount = appliedCoupon.discount_value;
+          }
+        }
+
+        if (discountAmount > totalPrice) {
+          discountAmount = totalPrice;
+        }
+        totalPrice -= discountAmount;
+      }
+
       //  generate order number
       const orderNumber = crypto.randomBytes(4).toString("hex").toUpperCase();
 
@@ -68,6 +115,7 @@ module.exports = {
         addressId,
         totalPrice,
         notes,
+        appliedCoupon ? appliedCoupon.id : null,
       );
 
       for (const item of items) {
@@ -100,6 +148,10 @@ module.exports = {
         }
       }
 
+      if (appliedCoupon) {
+        await Coupon.markCouponUsed(userId, appliedCoupon.id);
+      }
+
       await Order.commit(connection);
 
       res.status(201).json({
@@ -107,6 +159,8 @@ module.exports = {
         orderId,
         orderNumber,
         totalPrice,
+        coupon: appliedCoupon ? appliedCoupon.code : null,
+        discountAmount,
       });
     } catch (err) {
       if (connection) await Order.rollback(connection);
