@@ -24,14 +24,30 @@ module.exports = {
 
       const filters = {};
 
-      if (category_id) filters.categoryId = parseInt(category_id, 10);
+      if (category_id) {
+        const parsed = parseInt(category_id, 10);
+        if (isNaN(parsed) || parsed < 1) {
+          return res.status(400).json({ message: "category_id must be a positive integer" });
+        }
+        filters.categoryId = parsed;
+      }
       if (available !== undefined) filters.available = available === "true";
-      if (search) filters.search = search.trim();
+      if (search) {
+        const trimmed = search.trim();
+        if (trimmed.length > 100) {
+          return res.status(400).json({ message: "search must be 100 characters or fewer" });
+        }
+        filters.search = trimmed;
+      }
       if (exclude_allergens) {
-        filters.excludeAllergens = exclude_allergens
+        const allergens = exclude_allergens
           .split(",")
           .map((a) => a.trim())
           .filter(Boolean);
+        if (allergens.length > 20 || allergens.some((a) => a.length > 50)) {
+          return res.status(400).json({ message: "exclude_allergens exceeds allowed limits" });
+        }
+        filters.excludeAllergens = allergens;
       }
 
       const items = await Menu.getFilteredMenuItems(filters);
