@@ -48,6 +48,40 @@ module.exports = {
     return rows[0];
   },
 
+  createMenuItem: async (categoryId, name, description, price, photoUrl, allergens) => {
+    const [result] = await db.execute(
+      `INSERT INTO menu_items (category_id, name, description, price, photo_url, allergens)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [categoryId, name, description || null, price, photoUrl || null, allergens || null],
+    );
+    return result.insertId;
+  },
+
+  updateMenuItem: async (id, categoryId, name, description, price, photoUrl, allergens) => {
+    const [result] = await db.execute(
+      `UPDATE menu_items SET category_id = ?, name = ?, description = ?, price = ?, photo_url = ?, allergens = ?
+       WHERE id = ?`,
+      [categoryId, name, description || null, price, photoUrl || null, allergens || null, id],
+    );
+    return result.affectedRows;
+  },
+
+  deleteMenuItem: async (id) => {
+    const [result] = await db.execute(
+      `DELETE FROM menu_items WHERE id = ?`,
+      [id],
+    );
+    return result.affectedRows;
+  },
+
+  updateAvailability: async (id, availability) => {
+    const [result] = await db.execute(
+      `UPDATE menu_items SET availability = ? WHERE id = ?`,
+      [availability, id],
+    );
+    return result.affectedRows;
+  },
+
   getIngredientsForItem: async (itemId) => {
     const [rows] = await db.execute(
       `
