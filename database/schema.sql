@@ -59,12 +59,13 @@ CREATE TABLE IF NOT EXISTS orders (
   order_number VARCHAR(50) NOT NULL UNIQUE,
   delivery_method ENUM('delivery', 'pickup') NOT NULL,
   address_id INT,
-  total_price DECIMAN(10, 2) NOT NULL DEFAULT 0.00,
+  total_price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
   notes TEXT,
   status ENUM('pending', 'confirmed', 'preparing', 'ready', 'delivered', 'cancelled') NOT NULL DEFAULT 'pending',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id),
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT chk_delivery_address CHECK (delivery_method != 'delivery' OR address_id IS NOT NULL),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT,
   FOREIGN KEY (address_id) REFERENCES addresses(id)
 );
 
@@ -76,7 +77,7 @@ CREATE TABLE IF NOT EXISTS order_items (
   price_snapshot DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
   special_request TEXT,
   FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
-  FOREIGN KEY (item_id) REFERENCES menu_items(id)
+  FOREIGN KEY (item_id) REFERENCES menu_items(id) ON DELETE RESTRICT
 );
 
 CREATE TABLE IF NOT EXISTS order_item_ingredients (
@@ -106,7 +107,7 @@ CREATE TABLE IF NOT EXISTS rewards (
   menu_item_id INT NULL,
   discount_value DECIMAL(10, 2) NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
-  FOREIGN KEY (menu_item_id) REFERENCES menu_items(id)
+  FOREIGN KEY (menu_item_id) REFERENCES menu_items(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS coupons (
