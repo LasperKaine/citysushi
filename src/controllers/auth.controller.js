@@ -53,7 +53,7 @@ module.exports = {
           role: user.role,
           email: user.email,
         },
-        process.env.JWT_SECRET,
+        process.env.JWT_SECRET || "skiubiditoilet3432432",
         { expiresIn: "7d" },
       );
 
